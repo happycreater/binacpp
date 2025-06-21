@@ -100,14 +100,35 @@ string hmac_sha256( const char *key, const char *data) {
     return b2a_hex( (char *)digest, 32 );
 }   
 
-//------------------------------
-string sha256( const char *data ) {
+// //------------------------------
+// string sha256( const char *data ) {
 
-    unsigned char digest[32];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, strlen(data) );
-    SHA256_Final(digest, &sha256);
-    return b2a_hex( (char *)digest, 32 );
+//     unsigned char digest[32];
+//     SHA256_CTX sha256;
+//     SHA256_Init(&sha256);
+//     SHA256_Update(&sha256, data, strlen(data) );
+//     SHA256_Final(digest, &sha256);
+//     return b2a_hex( (char *)digest, 32 );
     
+// }
+
+string sha256(const char *data) {
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int digest_len = 0;
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) throw std::runtime_error("EVP_MD_CTX_new failed");
+    if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+        EVP_MD_CTX_free(ctx);
+        throw std::runtime_error("EVP_DigestInit_ex failed");
+    }
+    if (1 != EVP_DigestUpdate(ctx, data, strlen(data))) {
+        EVP_MD_CTX_free(ctx);
+        throw std::runtime_error("EVP_DigestUpdate failed");
+    }
+    if (1 != EVP_DigestFinal_ex(ctx, digest, &digest_len)) {
+        EVP_MD_CTX_free(ctx);
+        throw std::runtime_error("EVP_DigestFinal_ex failed");
+    }
+    EVP_MD_CTX_free(ctx);
+    return b2a_hex( (char *)digest, digest_len);
 }

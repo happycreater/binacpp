@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
+#include <openssl/evp.h>
 #include <iostream>
 using namespace std;
 
